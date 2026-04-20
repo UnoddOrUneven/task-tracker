@@ -7,6 +7,12 @@ class TaskTracker {
     addTask(task) {
         this.tasks.push(task);
     }
+    updateTask(id, description) {
+        id = parseInt(id, 10);
+        let task = this.tasks.find(task => task.id === id);
+        task.description = description;
+        console.log(`description of ${task.id} changed, new description: ${description}`);
+    }
 
     deleteTask(id) {
         this.tasks = this.tasks.filter((task) => task.id !== task.id);
@@ -114,6 +120,10 @@ class CLI{
         console.log(`Deleted task ${id}`);
     }
 
+    static command_update(id, ...args) {
+        taskTracker.updateTask(id, ...args);
+    }
+
     static command_list(...args) {
         taskTracker.listTasks(...args);
     }
@@ -137,7 +147,7 @@ const command = args[0]
 
 
 let commands = {"add": CLI.command_add, "delete": CLI.command_delete ,"list": CLI.command_list, "mark-done": CLI.command_mark_done,
-    "mark-in-progress": CLI.command_mark_in_progress}
+    "mark-in-progress": CLI.command_mark_in_progress, "update": CLI.command_update}
 
 commands[args[0]](...args.slice(1))
 SaveManager.save(taskTracker.tasks);
