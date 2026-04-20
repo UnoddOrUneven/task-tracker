@@ -7,12 +7,6 @@ class TaskTracker {
     addTask(task) {
         this.tasks.push(task);
     }
-    updateTask(id, description) {
-        id = parseInt(id, 10);
-        let task = this.tasks.find(task => task.id === id);
-        task.description = description;
-        console.log(`description of ${task.id} changed, new description: ${description}`);
-    }
 
     deleteTask(id) {
         this.tasks = this.tasks.filter((task) => task.id !== task.id);
@@ -42,7 +36,22 @@ class TaskTracker {
     }
 
     listTasks(...args) {
+        if (args.includes("done")){return this.listDoneTasks()}
+        if (args.includes("in-progress")){return this.listInProgressTasks()}
         for (let task of this.tasks) {
+            this.display(task);
+        }
+    }
+
+    listDoneTasks(...args) {
+        let doneTasks = this.tasks.filter((task) => task.status === "done");
+        for (let task of doneTasks) {
+            this.display(task);
+        }
+    }
+    listInProgressTasks(...args) {
+        let inProgressTasks = this.tasks.filter((task) => task.status === "in-progress");
+        for (let task of inProgressTasks) {
             this.display(task);
         }
     }
@@ -120,10 +129,6 @@ class CLI{
         console.log(`Deleted task ${id}`);
     }
 
-    static command_update(id, ...args) {
-        taskTracker.updateTask(id, ...args);
-    }
-
     static command_list(...args) {
         taskTracker.listTasks(...args);
     }
@@ -147,7 +152,7 @@ const command = args[0]
 
 
 let commands = {"add": CLI.command_add, "delete": CLI.command_delete ,"list": CLI.command_list, "mark-done": CLI.command_mark_done,
-    "mark-in-progress": CLI.command_mark_in_progress, "update": CLI.command_update}
+    "mark-in-progress": CLI.command_mark_in_progress}
 
 commands[args[0]](...args.slice(1))
 SaveManager.save(taskTracker.tasks);
