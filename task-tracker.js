@@ -6,25 +6,31 @@ class TaskTracker {
         this.tasks = tasks;
     }
 
-    AddTask(description,...args) {
-        let _id = TaskTracker._CreateTaskId()
+    addTask(task) {
+        this.tasks.push(task);
+    }
+
+    createTask(description) {
+        let _id = this._CreateTaskId()
         let _status = "todo"
         let _createdAt = Date.now();
         let _updatedAt = Date.now();
-
-        let task = new Task(_id, description, _status, _createdAt, _updatedAt);
-        this.tasks.push(task);
-
+        return new Task(_id, description, _status, _createdAt, _updatedAt);
     }
 
     display(task) {
         console.log(`ID: ${task.id}, "${task.description}", status: ${task.status}, createdAt: ${task.createdAt}, updatedAt: ${task.updatedAt}`);
     }
 
+    getNumberOfTasks() {
+        return this.tasks.length -1;
+    }
+     _CreateTaskId() {
+        if (this.tasks.length === 0) {
+            return 0;
+        }
 
-    static _CreateTaskId() {
-        this.idCounter += 1
-        return this.idCounter
+        return this.tasks[this.getNumberOfTasks()].id + 1;
     }
 
     listTasks(...args) {
@@ -77,12 +83,12 @@ class Task {
 class CLI{
 
     static command_add(description, ...args) {
-        taskTracker.AddTask(description, ...args);
-        console.log(`Added task ${description}`);
+        let task = taskTracker.createTask(description);
+        taskTracker.addTask(task);
+        console.log(`Added task ${description} (ID: ${task.id})`);
     }
     static command_list(description, ...args) {
         taskTracker.listTasks(...args);
-
     }
 
 }
