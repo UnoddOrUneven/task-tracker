@@ -1,6 +1,4 @@
 class TaskTracker {
-    static idCounter = 0
-
 
     constructor(tasks) {
         this.tasks = tasks;
@@ -8,6 +6,10 @@ class TaskTracker {
 
     addTask(task) {
         this.tasks.push(task);
+    }
+
+    deleteTask(id) {
+        this.tasks = this.tasks.filter((task) => task.id !== task.id);
     }
 
     createTask(description) {
@@ -38,6 +40,26 @@ class TaskTracker {
             this.display(task);
         }
     }
+
+    markDoneTask(id) {
+        id = parseInt(id,10);
+        let task = this.tasks.find((task) => task.id === id);
+        if (task) {
+            task.status = "done";
+            console.log(`Mark done task (ID: ${id})`);
+        }
+    }
+    markInProgressTask(id)  {
+        id = parseInt(id,10);
+        let task = this.tasks.find((task) => task.id === id);
+        if (task){
+            task.status = "in-progress";
+            console.log(`Mark in-progress task (ID: ${id})`);
+        }
+
+    }
+
+
 }
 
 
@@ -78,7 +100,6 @@ class Task {
         this.updatedAt = updatedAt;
     }
 
-
 }
 class CLI{
 
@@ -87,9 +108,24 @@ class CLI{
         taskTracker.addTask(task);
         console.log(`Added task ${description} (ID: ${task.id})`);
     }
-    static command_list(description, ...args) {
+
+    static command_delete(id, ...args) {
+        taskTracker.deleteTask(id, ...args);
+        console.log(`Deleted task ${id}`);
+    }
+
+    static command_list(...args) {
         taskTracker.listTasks(...args);
     }
+    static command_mark_done(id, ...args){
+        taskTracker.markDoneTask(id, ...args)
+
+    }
+    static command_mark_in_progress(id, ...args) {
+        taskTracker.markInProgressTask(id, ...args)
+    }
+
+
 
 }
 
@@ -100,7 +136,8 @@ const args = process.argv.slice(2)
 const command = args[0]
 
 
-let commands = {"add": CLI.command_add, "list": CLI.command_list}
+let commands = {"add": CLI.command_add, "delete": CLI.command_delete ,"list": CLI.command_list, "mark-done": CLI.command_mark_done,
+    "mark-in-progress": CLI.command_mark_in_progress}
 
 commands[args[0]](...args.slice(1))
-SaveManager.save(taskTracker.TaskList);
+SaveManager.save(taskTracker.tasks);
