@@ -35,7 +35,7 @@ class TaskTracker {
             return;
         }
         let old_description = task.description;
-        task.description = description;
+        task.description = description.toString();
         this.updateTime(task)
         console.log(`Task with ID ${id} updated! (${old_description}) -> ${description}`);
     }
@@ -86,27 +86,32 @@ class TaskTracker {
         for (let task of todoTasks) {
             this.display(task);
         }
+
     }
 
     markDoneTask(id) {
         id = parseInt(id,10);
         let task = this.tasks.find((task) => task.id === id);
-        if (task) {
-            task.status = "done";
-            console.log(`Mark done task (ID: ${id})`);
+        if (!task)
+        {
+            console.log(`Task with ID ${id} not found!`)
+            return;
         }
+        task.status = "done";
+        console.log(`Mark done task (ID: ${id})`);
+        this.updateTime(task);
     }
     markInProgressTask(id)  {
         id = parseInt(id,10);
         let task = this.tasks.find((task) => task.id === id);
-        if (task){
-            task.status = "in-progress";
-            console.log(`Mark in-progress task (ID: ${id})`);
+        if (!task){
+            console.log(`Task with ID ${id} not found!`)
+            return;
         }
-
+        task.status = "in-progress";
+        console.log(`Mark in-progress task (ID: ${id})`);
+        this.updateTime(task);
     }
-
-
 }
 
 
@@ -160,7 +165,7 @@ class CLI{
 
         if (!Object.keys(this.commands).includes(args[0])) {
             console.log(`${args[0]} is not a valid command`);
-        return 0;
+        return;
         }
         this.commands[args[0]](...args.slice(1))
     }
@@ -203,7 +208,8 @@ class CLI{
     }
 
     command_update_task(id, ...args) {
-        this.taskTracker.updateTask(id, ...args)
+        let description = args.slice(0)
+        this.taskTracker.updateTask(id, description)
     }
 
 
