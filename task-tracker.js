@@ -56,8 +56,8 @@ class TaskTracker {
             return 0;
         }
 
-        let biggest_id = this.tasks.sort((task1, task2) => task1.id -task2.id).at(-1);
-        return this.tasks[this.getNumberOfTasks()].id + 1;
+        let biggest_id = this.tasks.toSorted((task1, task2) => task1.id -task2.id).at(-1).id;
+        return biggest_id + 1;
     }
 
     listTasks(...args) {
