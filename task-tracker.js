@@ -9,7 +9,8 @@ class TaskTracker {
     }
 
     deleteTask(id) {
-        this.tasks = this.tasks.filter((task) => task.id !== task.id);
+        id = parseInt(id,10);
+        this.tasks = this.tasks.filter((task) => task.id !== id);
     }
 
     createTask(description) {
@@ -38,6 +39,7 @@ class TaskTracker {
     listTasks(...args) {
         if (args.includes("done")){return this.listDoneTasks()}
         if (args.includes("in-progress")){return this.listInProgressTasks()}
+        if (args.includes("todo")){return this.listTodoTasks()}
         for (let task of this.tasks) {
             this.display(task);
         }
@@ -52,6 +54,12 @@ class TaskTracker {
     listInProgressTasks(...args) {
         let inProgressTasks = this.tasks.filter((task) => task.status === "in-progress");
         for (let task of inProgressTasks) {
+            this.display(task);
+        }
+    }
+    listTodoTasks(...args) {
+        let todoTasks = this.tasks.filter((task) => task.status === "todo");
+        for (let task of todoTasks) {
             this.display(task);
         }
     }
