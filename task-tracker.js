@@ -27,6 +27,22 @@ class TaskTracker {
         let _updatedAt = Date.now();
         return new Task(_id, description, _status, _createdAt, _updatedAt);
     }
+    updateTask(id, description) {
+        id = parseInt(id,10);
+        let task = this.tasks.find((task) => task.id === id);
+        if (!task) {
+            console.log(`Task with ID ${id} not found!`);
+            return;
+        }
+        let old_description = task.description;
+        task.description = description;
+        this.updateTime(task)
+        console.log(`Task with ID ${id} updated! (${old_description}) -> ${description}`);
+    }
+
+    updateTime(task){
+        task.updatedAt = Date.now();
+    }
 
     display(task) {
         console.log(`ID: ${task.id}, "${task.description}", status: ${task.status}, createdAt: ${task.createdAt}, updatedAt: ${task.updatedAt}`);
@@ -40,6 +56,7 @@ class TaskTracker {
             return 0;
         }
 
+        let biggest_id = this.tasks.sort((task1, task2) => task1.id -task2.id).at(-1);
         return this.tasks[this.getNumberOfTasks()].id + 1;
     }
 
@@ -136,7 +153,8 @@ class CLI{
     constructor(taskTracker){
         this.taskTracker = taskTracker;
         this.commands = {"add": this.command_add.bind(this), "delete": this.command_delete.bind(this) ,"list": this.command_list.bind(this), "mark-done": this.command_mark_done.bind(this),
-            "mark-in-progress": this.command_mark_in_progress.bind(this),"help":this.command_display_help.bind(this),}
+            "mark-in-progress": this.command_mark_in_progress.bind(this),"help":this.command_display_help.bind(this),
+        "update": this.command_update_task.bind(this),}
 
         let args = process.argv.slice(2)
 
@@ -152,6 +170,7 @@ class CLI{
     command_display_help(...args) {
         console.log(`List tasks - list 
         Add task - add "description"
+        Update task - update [ID] "new description"
         Delete task - delete [ID] 
         Mark task done - mark-done [ID]
         Mark task in-progress - mark-in-progress [ID]
@@ -183,6 +202,9 @@ class CLI{
         this.taskTracker.markInProgressTask(id, ...args)
     }
 
+    command_update_task(id, ...args) {
+        this.taskTracker.updateTask(id, ...args)
+    }
 
 
 }
