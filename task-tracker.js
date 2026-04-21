@@ -10,7 +10,14 @@ class TaskTracker {
 
     deleteTask(id) {
         id = parseInt(id,10);
-        this.tasks = this.tasks.filter((task) => task.id !== id);
+        let task = this.tasks.find((task) => task.id === id);
+        if (!task) {
+            console.log(`Task with ID ${id} not found!`);
+            return;
+        }
+        let index = this.tasks.indexOf(task);
+        this.tasks.splice(index,1)
+        console.log(`Task with ID ${id} deleted!`);
     }
 
     createTask(description) {
@@ -91,7 +98,7 @@ class SaveManager{
 
 
     static save(TaskList){
-        let json_tracker = JSON.stringify(taskTracker.tasks);
+        let json_tracker = JSON.stringify(TaskList);
         const fs = require("fs")
         fs.writeFileSync(
             "task-tracker.json",json_tracker
@@ -100,6 +107,7 @@ class SaveManager{
 
     static load(){
         const fs = require("fs")
+        if (!fs.existsSync("task-tracker.json")) {return SaveManager.startFresh()}
         const raw = fs.readFileSync("task-tracker.json").toString();
         if (raw.length === 0 ){return SaveManager.startFresh()}
         return JSON.parse(raw)
@@ -125,27 +133,54 @@ class Task {
 
 }
 class CLI{
+    constructor(taskTracker){
+        this.taskTracker = taskTracker;
+        this.commands = {"add": this.command_add.bind(this), "delete": this.command_delete.bind(this) ,"list": this.command_list.bind(this), "mark-done": this.command_mark_done.bind(this),
+            "mark-in-progress": this.command_mark_in_progress.bind(this),"help":this.command_display_help.bind(this),}
 
-    static command_add(description, ...args) {
-        let task = taskTracker.createTask(description);
-        taskTracker.addTask(task);
+        let args = process.argv.slice(2)
+
+        if (!Object.keys(this.commands).includes(args[0])) {
+            console.log(`${args[0]} is not a valid command`);
+        return 0;
+        }
+        this.commands[args[0]](...args.slice(1))
+    }
+
+
+
+    command_display_help(...args) {
+        console.log(`List tasks - list 
+        Add task - add "description"
+        Delete task - delete [ID] 
+        Mark task done - mark-done [ID]
+        Mark task in-progress - mark-in-progress [ID]
+        Display this message - help`);
+
+
+
+    }
+
+    command_add(description, ...args) {
+        let task = this.taskTracker.createTask(description);
+        this.taskTracker.addTask(task);
         console.log(`Added task ${description} (ID: ${task.id})`);
     }
 
-    static command_delete(id, ...args) {
-        taskTracker.deleteTask(id, ...args);
-        console.log(`Deleted task ${id}`);
-    }
-
-    static command_list(...args) {
-        taskTracker.listTasks(...args);
-    }
-    static command_mark_done(id, ...args){
-        taskTracker.markDoneTask(id, ...args)
+    command_delete(id, ...args) {
+        this.taskTracker.deleteTask(id, ...args);
 
     }
-    static command_mark_in_progress(id, ...args) {
-        taskTracker.markInProgressTask(id, ...args)
+
+    command_list(...args) {
+        this.taskTracker.listTasks(...args);
+    }
+    command_mark_done(id, ...args){
+        this.taskTracker.markDoneTask(id, ...args)
+
+    }
+    command_mark_in_progress(id, ...args) {
+        this.taskTracker.markInProgressTask(id, ...args)
     }
 
 
@@ -155,12 +190,6 @@ class CLI{
 let taskTracker = new TaskTracker(SaveManager.load());
 
 
-const args = process.argv.slice(2)
-const command = args[0]
+const cli = new CLI(taskTracker);
 
-
-let commands = {"add": CLI.command_add, "delete": CLI.command_delete ,"list": CLI.command_list, "mark-done": CLI.command_mark_done,
-    "mark-in-progress": CLI.command_mark_in_progress}
-
-commands[args[0]](...args.slice(1))
 SaveManager.save(taskTracker.tasks);
