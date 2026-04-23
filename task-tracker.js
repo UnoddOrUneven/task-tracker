@@ -10,7 +10,7 @@ class TaskTracker {
 
     deleteTask(id) {
         id = parseInt(id,10);
-        let task = this.tasks.find((task) => task.id === id);
+        let task = this.findTaskById(id)
         if (!task) {
             console.log(`Task with ID ${id} not found!`);
             return;
@@ -20,8 +20,18 @@ class TaskTracker {
         console.log(`Task with ID ${id} deleted!`);
     }
 
+    findTaskById(id) {
+        id = parseInt(id,10);
+        let task =  this.tasks.find((task) => task.id === id);
+        if (!task) {
+            console.log(`Task with ID ${id} not found!`);
+            return;
+        }
+        return task;
+    }
+
     createTask(description) {
-        let _id = this._CreateTaskId()
+        let _id = this.createTaskId()
         let _status = "todo"
         let _createdAt = Date.now();
         let _updatedAt = Date.now();
@@ -29,11 +39,8 @@ class TaskTracker {
     }
     updateTask(id, description) {
         id = parseInt(id,10);
-        let task = this.tasks.find((task) => task.id === id);
-        if (!task) {
-            console.log(`Task with ID ${id} not found!`);
-            return;
-        }
+        let task = this.findTaskById();
+
         let old_description = task.description;
         task.description = description.toString();
         this.updateTime(task)
@@ -48,10 +55,8 @@ class TaskTracker {
         console.log(`ID: ${task.id}, "${task.description}", status: ${task.status}, createdAt: ${task.createdAt}, updatedAt: ${task.updatedAt}`);
     }
 
-    getNumberOfTasks() {
-        return this.tasks.length -1;
-    }
-     _CreateTaskId() {
+
+     createTaskId() {
         if (this.tasks.length === 0) {
             return 0;
         }
@@ -91,23 +96,15 @@ class TaskTracker {
 
     markDoneTask(id) {
         id = parseInt(id,10);
-        let task = this.tasks.find((task) => task.id === id);
-        if (!task)
-        {
-            console.log(`Task with ID ${id} not found!`)
-            return;
-        }
+        let task = this.findTaskById(id);
+
         task.status = "done";
         console.log(`Mark done task (ID: ${id})`);
         this.updateTime(task);
     }
     markInProgressTask(id)  {
         id = parseInt(id,10);
-        let task = this.tasks.find((task) => task.id === id);
-        if (!task){
-            console.log(`Task with ID ${id} not found!`)
-            return;
-        }
+        let task = this.findTaskById(id);
         task.status = "in-progress";
         console.log(`Mark in-progress task (ID: ${id})`);
         this.updateTime(task);
@@ -208,7 +205,7 @@ class CLI{
     }
 
     command_update_task(id, ...args) {
-        let description = args.slice(0)
+        let description = args.join(" ")
         this.taskTracker.updateTask(id, description)
     }
 
